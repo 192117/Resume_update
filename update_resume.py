@@ -1,5 +1,6 @@
 import time
 
+import requests
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.chrome.service import Service
@@ -28,16 +29,22 @@ def update_resume(url: str):
         code_input.send_keys(code)
         code_input.send_keys(Keys.RETURN)
         while True:
+            time.sleep(10)
             driver.refresh()
             update_button = driver.find_element(By.XPATH, '//button[@data-qa="resume-update-button_actions"]')
-            time.sleep(30)
+            time.sleep(10)
             if update_button.text == 'Поднять в поиске':
                 update_button.click()
+                requests.get(
+                    f'https://api.telegram.org/bot{TELEGRAM_TOKEN}/sendMessage?chat_id={TELEGRAM_CHANNEL}&text=Поднял резюме!'
+                )
                 time.sleep(4 * 60 * 60)
             else:
                 time.sleep(60)
     except Exception as exception:
-        print(exception)
+        requests.get(
+            f'https://api.telegram.org/bot{TELEGRAM_TOKEN}/sendMessage?chat_id={TELEGRAM_CHANNEL}&text={exception}'
+        )
     finally:
         driver.close()
         driver.quit()
